@@ -1,0 +1,20 @@
+repository:
+  name: local-ai-hub
+  description: "Personalized self-hosted AI workspace forked from Open WebUI for local-first productivity."
+  homepage: "https://github.com/your-org/local-ai-hub"
+  private: false
+  has_issues: true
+  has_projects: true
+  has_wiki: false
+  default_branch: main
+  topics:
+    - ai
+    - llm
+    - self-hosted
+    - ollama
+    - rag
+    - fastapi
+    - svelte
+    - local-ai
+    - chinese-localization
+    - local-ai-hub

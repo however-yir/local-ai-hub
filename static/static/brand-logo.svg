@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Local AI Hub Logo</title>
+  <desc id="desc">Hexagon badge with ZH monogram for Local AI Hub.</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="#0b1220"/>
+  <path d="M128 28 208 72v112l-80 44-80-44V72z" fill="url(#g)" opacity="0.9"/>
+  <path d="M76 87h31v20h-8v43h8v19H76v-19h8v-43h-8zm73 0h31v20h-8v43h8v19h-31v-19h8v-43h-8z" fill="#f8fafc"/>
+  <rect x="106" y="116" width="44" height="23" rx="11.5" fill="#f8fafc"/>
+</svg>
