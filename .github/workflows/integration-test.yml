@@ -1,0 +1,245 @@
+name: Integration Test
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  migration_test:
+    name: Run Migration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: yezz123/setup-uv@v4
+        with:
+          uv-venv: venv
+
+      - name: Activate virtualenv
+        run: |
+          . venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: uv pip install -r backend/requirements.txt
+
+      - name: Test backend with SQLite
+        id: sqlite
+        env:
+          WEBUI_SECRET_KEY: secret-key
+          GLOBAL_LOG_LEVEL: debug
+        run: |
+          cd backend
+          uvicorn open_webui.main:app --port "8080" --forwarded-allow-ips '*' &
+          UVICORN_PID=$!
+          for i in {1..40}; do
+              curl -s http://localhost:8080/api/config > /dev/null && break
+              sleep 1
+              if [ $i -eq 40 ]; then
+                  echo "Server failed to start"
+                  kill -9 $UVICORN_PID
+                  exit 1
+              fi
+          done
+          sleep 5
+          if ! kill -0 $UVICORN_PID; then
+              echo "Server has stopped"
+              exit 1
+          fi
+
+      - name: Test backend with Postgres
+        if: success() || steps.sqlite.conclusion == 'failure'
+        env:
+          WEBUI_SECRET_KEY: secret-key
+          GLOBAL_LOG_LEVEL: debug
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+          DATABASE_POOL_SIZE: 10
+          DATABASE_POOL_MAX_OVERFLOW: 10
+          DATABASE_POOL_TIMEOUT: 30
+        run: |
+          cd backend
+          uvicorn open_webui.main:app --port "8081" --forwarded-allow-ips '*' &
+          UVICORN_PID=$!
+          for i in {1..20}; do
+              curl -s http://localhost:8081/api/config > /dev/null && break
+              sleep 1
+              if [ $i -eq 20 ]; then
+                  echo "Server failed to start"
+                  kill -9 $UVICORN_PID
+                  exit 1
+              fi
+          done
+          sleep 5
+          if ! kill -0 $UVICORN_PID; then
+              echo "Server has stopped"
+              exit 1
+          fi
+
+          status_code=$(curl --write-out %{http_code} -s --output /dev/null http://localhost:8081/health/db)
+          if [[ "$status_code" -ne 200 ]] ; then
+            echo "Server has failed before postgres reconnect check"
+            exit 1
+          fi
+
+          echo "Terminating all connections to postgres..."
+          python -c "import os, psycopg2 as pg2; \
+            conn = pg2.connect(dsn=os.environ['DATABASE_URL'].replace('+pool', '')); \
+            cur = conn.cursor(); \
+            cur.execute('SELECT pg_terminate_backend(psa.pid) FROM pg_stat_activity psa WHERE datname = current_database() AND pid <> pg_backend_pid();')"
+
+          status_code=$(curl --write-out %{http_code} -s --output /dev/null http://localhost:8081/health/db)
+          if [[ "$status_code" -ne 200 ]] ; then
+            echo "Server has not reconnected to postgres after connection was closed: returned status $status_code"
+            exit 1
+          fi
+
+  backend_pytest:
+    name: Run Backend Pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: migration_test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: yezz123/setup-uv@v4
+        with:
+          uv-venv: venv
+
+      - name: Activate virtualenv
+        run: |
+          . venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Install backend test dependencies
+        run: |
+          uv pip install -r backend/requirements.txt
+          uv pip install moto gcp-storage-emulator
+
+      - name: Run backend pytest
+        run: |
+          cd backend
+          PYTHONPATH=. pytest open_webui/test -q
+
+  frontend_tests:
+    name: Run Frontend Vitest
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: migration_test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Install Dependencies
+        run: npm ci --force
+
+      - name: Run vitest
+        run: npm run test:frontend
+
+  cypress-run:
+    name: Run Cypress Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs:
+      - migration_test
+      - backend_pytest
+      - frontend_tests
+    steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v4.1
+        with:
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Build and run Compose Stack
+        run: |
+          docker compose \
+            --file docker-compose.yaml \
+            --file docker-compose.api.yaml \
+            --file docker-compose.a1111-test.yaml \
+            up --detach --build
+
+      - name: Delete Docker build cache
+        run: docker builder prune --all --force
+
+      - name: Wait for Ollama to be up
+        timeout-minutes: 5
+        run: |
+          until curl --output /dev/null --silent --fail http://localhost:11434; do
+            printf '.'
+            sleep 1
+          done
+          echo "Service is up!"
+
+      - name: Preload Ollama model
+        run: docker exec ollama ollama pull qwen:0.5b-chat-v1.5-q2_K
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        env:
+          LIBGL_ALWAYS_SOFTWARE: 1
+        with:
+          browser: chrome
+          wait-on: "http://localhost:3000"
+          config: baseUrl=http://localhost:3000
+
+      - name: Upload Cypress videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
+
+      - name: Extract Compose logs
+        if: always()
+        run: docker compose logs > compose-logs.txt
+
+      - name: Upload Compose logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-logs
+          path: compose-logs.txt
+          if-no-files-found: ignore
