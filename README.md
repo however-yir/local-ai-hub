@@ -134,6 +134,35 @@ OPENAI_API_BASE_URL=https://api.openai.com/v1
 OPENAI_API_KEY=replace_with_secure_key
 ```
 
+## 部署剖面矩阵
+
+| 形态 | 入口文件 | 适合场景 |
+| --- | --- | --- |
+| 标准自托管 | `docker-compose.yaml` | 默认本地工作台部署 |
+| GPU 版 | `docker-compose.gpu.yaml` | 本地 GPU 推理与工作台一体化 |
+| API 偏后端 | `docker-compose.api.yaml` | 仅开放 API / backend 能力 |
+| 数据依赖拆分 | `docker-compose.data.yaml` | 单独准备数据库与状态服务 |
+| 可观测版 | `docker-compose.otel.yaml` | 需要 OTel 追踪与运维接入 |
+| UI 自动化 | `docker-compose.playwright.yaml` | 页面冒烟与交互验证 |
+
+## 模型提供方兼容矩阵
+
+| 提供方类型 | 关键配置 | 最适合的使用方式 |
+| --- | --- | --- |
+| Ollama / 本地模型 | `OLLAMA_BASE_URL` | 本地优先、数据不出机 |
+| OpenAI 兼容网关 | `OPENAI_API_BASE_URL` + `OPENAI_API_KEY` | SaaS 或私有代理统一接入 |
+| OpenRouter / 多模型代理 | 同 OpenAI 兼容配置 | 多模型路由与团队统一出口 |
+| Redis / 数据库扩展 | `REDIS_URL`, `DATABASE_URL` | 多会话、任务协同与持久化 |
+
+## 文档入口
+
+| 入口 | 路径 | 说明 |
+| --- | --- | --- |
+| 项目文档首页 | `docs/README.md` | 总览与导航 |
+| 安全说明 | `docs/SECURITY.md` | 私有部署与安全建议 |
+| 协作协议 | `PROJECT_PROTOCOL.md` | fork 后的治理边界 |
+| 品牌资源 | `static/static/brand-splash.svg` | README 与首屏品牌资产 |
+
 ## 与上游 Open WebUI 的区别
 - 目标定位：从通用开源界面，转向“个人/团队可运营”的私有 AI 工作台。
 - 品牌体系：完整替换项目名称、Logo、PWA 元信息、仓库元数据模板。
