@@ -25,6 +25,14 @@
 - 最短运行路径：`cp .env.example .env && docker compose up -d --build`
 - 系列分工：`Local AI Hub` 负责工作台入口，`LZKB` 负责知识平台，`YourRAG` 负责企业 RAG/Agent 交付。
 
+## AI 平台分工矩阵
+
+| Repo | 主要角色 | 部署形态 | 最适合的场景 |
+| --- | --- | --- | --- |
+| `Local AI Hub` | 本地 AI 工作台 | 自托管工作台 | 模型接入、团队日用、统一入口 |
+| `LZKB` | 知识库平台 | 本地优先平台 | 文档入库、知识运营、检索问答 |
+| `YourRAG` | 企业 RAG/Agent 平台 | 企业交付导向 | 私有化部署、RAG + Agent 交付 |
+
 ## 项目定位
 `Local AI Hub` 是基于 `open-webui` 深度定制的私有化 AI 工作台，面向本地部署、团队协作、模型编排与知识工作流。
 
