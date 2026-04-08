@@ -1,8 +1,29 @@
 # Local AI Hub
 
+[![Build](https://github.com/however-yir/local-ai-hub/actions/workflows/build-release.yml/badge.svg)](https://github.com/however-yir/local-ai-hub/actions/workflows/build-release.yml)
+[![Docs](https://img.shields.io/badge/docs-README-0A7EFA)](https://github.com/however-yir/local-ai-hub#readme)
+[![License](https://img.shields.io/badge/license-See%20repo-16A34A)](./LICENSE)
+[![Status](https://img.shields.io/badge/status-active-2563EB)](https://github.com/however-yir/local-ai-hub)
+
+> Status: `active`
+>
+> Upstream: `open-webui/open-webui`
+>
+> Series: [LZKB](https://github.com/however-yir/LZKB) · [yourrag](https://github.com/however-yir/yourrag)
+
 > A personalized, self-hosted AI workspace forked from Open WebUI.
 
+`Local AI Hub` 的角色不是知识库平台，也不是企业 RAG 平台，而是“本地 AI 工作台”。  
+它更强调模型接入、私有部署、工作台体验、团队内日常使用与后续能力扩展。
+
 ![Local AI Hub Splash](./static/static/brand-splash.svg)
+
+## 项目快照
+
+- 定位：本地优先、自托管的 AI 工作台。
+- 亮点：Open WebUI 深度定制、Docker 部署、模型网关、品牌脱钩与私有化配置。
+- 最短运行路径：`cp .env.example .env && docker compose up -d --build`
+- 系列分工：`Local AI Hub` 负责工作台入口，`LZKB` 负责知识平台，`YourRAG` 负责企业 RAG/Agent 交付。
 
 ## 项目定位
 `Local AI Hub` 是基于 `open-webui` 深度定制的私有化 AI 工作台，面向本地部署、团队协作、模型编排与知识工作流。
