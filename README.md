@@ -9,6 +9,8 @@
 >
 > Upstream: `open-webui/open-webui`
 >
+> Attribution: upstream license remains in `LICENSE`; fork boundary and redistribution notes are maintained in `LICENSE.HOWEVER` and `NOTICE.md`.
+>
 > Series: [LZKB](https://github.com/however-yir/LZKB) · [yourrag](https://github.com/however-yir/yourrag)
 
 > A personalized, self-hosted AI workspace forked from Open WebUI.
@@ -17,6 +19,12 @@
 它更强调模型接入、私有部署、工作台体验、团队内日常使用与后续能力扩展。
 
 ![Local AI Hub Splash](./static/static/brand-splash.svg)
+
+## Demo 媒体
+
+> 当前仓库已补入一张现有运行界面图；后续会继续替换为完全品牌化后的最新实拍截图。
+
+![Local AI Hub workspace capture](./demo.png)
 
 ## 项目快照
 

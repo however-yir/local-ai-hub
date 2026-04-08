@@ -1,0 +1,16 @@
+Local AI Hub Fork-Specific Licensing Notes
+==========================================
+
+This repository is a derivative work of:
+  https://github.com/open-webui/open-webui
+
+Upstream licensing remains in effect for upstream-derived files:
+  - See LICENSE for the upstream project license text and related notices.
+
+Fork-specific notes:
+  - This fork adds project branding, deployment templates, repository metadata, and showcase documentation.
+  - This file does not replace upstream licenses or third-party obligations.
+  - Redistribution should preserve upstream copyright notices together with this fork's NOTICE.
+
+Maintainer:
+  however-yir / Liu Zhuoran
