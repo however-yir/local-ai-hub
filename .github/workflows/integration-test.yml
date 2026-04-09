@@ -26,7 +26,7 @@ jobs:
   migration_test:
     name: Run Migration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     services:
       postgres:
         image: postgres
@@ -60,6 +60,14 @@ jobs:
 
       - name: Install dependencies
         run: uv pip install -r backend/requirements.txt
+
+      - name: Check Alembic Schema Drift
+        env:
+          WEBUI_SECRET_KEY: secret-key
+          GLOBAL_LOG_LEVEL: debug
+        run: |
+          cd backend/open_webui
+          alembic -c alembic.ini check
 
       - name: Test backend with SQLite
         id: sqlite
@@ -131,10 +139,10 @@ jobs:
             exit 1
           fi
 
-  backend_pytest:
-    name: Run Backend Pytest
+  backend_pytest_fast:
+    name: Run Backend Pytest (Fast)
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     needs: migration_test
     steps:
       - name: Checkout Repository
@@ -160,26 +168,120 @@ jobs:
           uv pip install -r backend/requirements.txt
           uv pip install moto gcp-storage-emulator
 
-      - name: Run backend pytest
+      - name: Run backend fast pytest
         env:
           WEBUI_SECRET_KEY: secret-key
           GLOBAL_LOG_LEVEL: debug
         run: |
           cd backend
-          PYTHONPATH=. pytest open_webui/test -q --maxfail=1 --durations=20 --junitxml=pytest-report.xml
+          PYTHONPATH=. pytest open_webui/test -q -m "fast and not slow" --maxfail=1 --durations=20 --junitxml=pytest-fast-report.xml
 
-      - name: Upload backend pytest report
+      - name: Upload backend fast pytest report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-pytest-report
-          path: backend/pytest-report.xml
+          name: backend-pytest-fast-report
+          path: backend/pytest-fast-report.xml
+          if-no-files-found: warn
+
+  backend_pytest_integration:
+    name: Run Backend Pytest (Integration)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs:
+      - migration_test
+      - backend_pytest_fast
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: yezz123/setup-uv@v4
+        with:
+          uv-venv: venv
+
+      - name: Activate virtualenv
+        run: |
+          . venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Install backend integration test dependencies
+        run: |
+          uv pip install -r backend/requirements.txt
+          uv pip install moto gcp-storage-emulator
+
+      - name: Run backend integration pytest
+        env:
+          WEBUI_SECRET_KEY: secret-key
+          GLOBAL_LOG_LEVEL: debug
+        run: |
+          cd backend
+          PYTHONPATH=. pytest open_webui/test -q -m "integration" --maxfail=1 --durations=20 --junitxml=pytest-integration-report.xml
+
+      - name: Upload backend integration pytest report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-pytest-integration-report
+          path: backend/pytest-integration-report.xml
+          if-no-files-found: warn
+
+  backend_contract_tests:
+    name: Run Backend Contract Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs:
+      - migration_test
+      - backend_pytest_fast
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up uv
+        uses: yezz123/setup-uv@v4
+        with:
+          uv-venv: venv
+
+      - name: Activate virtualenv
+        run: |
+          . venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+
+      - name: Install backend contract test dependencies
+        run: |
+          uv pip install -r backend/requirements.txt
+          uv pip install moto gcp-storage-emulator
+
+      - name: Run backend contract pytest
+        env:
+          WEBUI_SECRET_KEY: secret-key
+          GLOBAL_LOG_LEVEL: debug
+        run: |
+          cd backend
+          PYTHONPATH=. pytest open_webui/test/apps/webui/routers/test_contracts.py -q --junitxml=pytest-contract-report.xml
+
+      - name: Upload backend contract pytest report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-pytest-contract-report
+          path: backend/pytest-contract-report.xml
           if-no-files-found: warn
 
   frontend_tests:
     name: Run Frontend Vitest
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     needs: migration_test
     steps:
       - name: Checkout Repository
@@ -194,16 +296,83 @@ jobs:
       - name: Install Dependencies
         run: npm ci --force
 
-      - name: Run vitest
-        run: npm run test:frontend
+      - name: Run vitest with coverage
+        run: npm run test:frontend:coverage
+
+      - name: Validate frontend coverage gate
+        run: |
+          node -e "const fs=require('fs');const p='coverage/coverage-summary.json';if(!fs.existsSync(p)){throw new Error('coverage summary missing')}const s=JSON.parse(fs.readFileSync(p,'utf8'));const lines=s.total.lines.pct||0;if(lines<20){throw new Error('Frontend coverage below 20% gate: '+lines)}console.log('Frontend lines coverage:',lines)"
+
+      - name: Upload frontend coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: coverage
+          if-no-files-found: warn
+
+  security_scan:
+    name: Dependency & SAST Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    needs: migration_test
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit bandit
+          npm ci --force
+
+      - name: Run backend dependency audit
+        run: |
+          pip-audit -r backend/requirements.txt --progress-spinner off
+
+      - name: Run backend bandit scan
+        run: |
+          bandit -r backend/open_webui -x backend/open_webui/test -f txt -o bandit-report.txt
+
+      - name: Run frontend npm audit
+        run: npm audit --audit-level=high
+
+      - name: Upload security scan artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-report
+          path: bandit-report.txt
+          if-no-files-found: ignore
 
   cypress-run:
     name: Run Cypress Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - shard: shard-1
+            specs: cypress/e2e/chat.cy.ts,cypress/e2e/documents.cy.ts
+          - shard: shard-2
+            specs: cypress/e2e/registration.cy.ts,cypress/e2e/settings.cy.ts
     needs:
       - migration_test
-      - backend_pytest
+      - backend_pytest_fast
+      - backend_pytest_integration
+      - backend_contract_tests
       - frontend_tests
     steps:
       - name: Maximize build space
@@ -239,7 +408,7 @@ jobs:
       - name: Preload Ollama model
         run: docker exec ollama ollama pull qwen:0.5b-chat-v1.5-q2_K
 
-      - name: Cypress run
+      - name: Cypress run (${{ matrix.shard }})
         uses: cypress-io/github-action@v6
         env:
           LIBGL_ALWAYS_SOFTWARE: 1
@@ -247,31 +416,32 @@ jobs:
           browser: chrome
           wait-on: "http://localhost:3000"
           config: baseUrl=http://localhost:3000
+          spec: ${{ matrix.specs }}
 
-      - name: Upload Cypress videos
+      - name: Upload Cypress videos (${{ matrix.shard }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-videos
+          name: cypress-videos-${{ matrix.shard }}
           path: cypress/videos
           if-no-files-found: ignore
 
-      - name: Upload Cypress screenshots
+      - name: Upload Cypress screenshots (${{ matrix.shard }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-screenshots
+          name: cypress-screenshots-${{ matrix.shard }}
           path: cypress/screenshots
           if-no-files-found: ignore
 
-      - name: Extract Compose logs
+      - name: Extract Compose logs (${{ matrix.shard }})
         if: always()
         run: docker compose logs > compose-logs.txt
 
-      - name: Upload Compose logs
+      - name: Upload Compose logs (${{ matrix.shard }})
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: compose-logs
+          name: compose-logs-${{ matrix.shard }}
           path: compose-logs.txt
           if-no-files-found: ignore
