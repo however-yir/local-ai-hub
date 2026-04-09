@@ -1,4 +1,4 @@
-# Local AI Hub
+# Local AI Hub - 本地私有 AI 工作台 | Self-hosted Local AI Workspace
 
 [![Build](https://github.com/however-yir/local-ai-hub/actions/workflows/build-release.yml/badge.svg)](https://github.com/however-yir/local-ai-hub/actions/workflows/build-release.yml)
 [![Docs](https://img.shields.io/badge/docs-README-0A7EFA)](https://github.com/however-yir/local-ai-hub#readme)
