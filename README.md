@@ -107,6 +107,28 @@ docker compose up -d --build
 
 默认端口：`http://localhost:3000`
 
+### 三档启动（无 Ollama / 有 Ollama / 生产 Redis）
+
+```bash
+# 1) 无 Ollama（连接外部 Ollama，保留本地 Redis）
+cp .env.local.example .env
+./scripts/start-profile.sh no-ollama
+
+# 2) 有 Ollama（本地一体化）
+cp .env.local.example .env
+./scripts/start-profile.sh with-ollama
+
+# 3) 生产 Redis（外部 Redis + 外部 Ollama）
+cp .env.production.example .env
+./scripts/start-profile.sh prod-redis
+```
+
+建议：
+
+- `no-ollama`：开发机内存有限，但已有外部 Ollama。
+- `with-ollama`：本地演示与功能联调。
+- `prod-redis`：预生产/生产，Redis 不再走 compose 默认容器。
+
 ### 方式 B：本地开发（前后端）
 ```bash
 cp .env.local.example .env.local
