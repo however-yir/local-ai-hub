@@ -9,6 +9,18 @@ on:
     branches:
       - main
       - dev
+  workflow_dispatch:
+
+concurrency:
+  group: local-ai-hub-integration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "22"
 
 jobs:
   migration_test:
@@ -34,7 +46,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Set up uv
         uses: yezz123/setup-uv@v4
@@ -131,7 +143,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Set up uv
         uses: yezz123/setup-uv@v4
@@ -149,9 +161,20 @@ jobs:
           uv pip install moto gcp-storage-emulator
 
       - name: Run backend pytest
+        env:
+          WEBUI_SECRET_KEY: secret-key
+          GLOBAL_LOG_LEVEL: debug
         run: |
           cd backend
-          PYTHONPATH=. pytest open_webui/test -q
+          PYTHONPATH=. pytest open_webui/test -q --maxfail=1 --durations=20 --junitxml=pytest-report.xml
+
+      - name: Upload backend pytest report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-pytest-report
+          path: backend/pytest-report.xml
+          if-no-files-found: warn
 
   frontend_tests:
     name: Run Frontend Vitest
@@ -165,7 +188,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
 
       - name: Install Dependencies
         run: npm ci --force
@@ -230,6 +254,14 @@ jobs:
         with:
           name: cypress-videos
           path: cypress/videos
+          if-no-files-found: ignore
+
+      - name: Upload Cypress screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
           if-no-files-found: ignore
 
       - name: Extract Compose logs
