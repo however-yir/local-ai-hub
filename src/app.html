@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/static/brand-logo.svg" crossorigin="use-credentials" />
+		<link rel="icon" type="image/png" href="/static/favicon.png" crossorigin="use-credentials" />
 		<link
 			rel="icon"
 			type="image/png"
@@ -13,7 +13,7 @@
 		<link
 			rel="icon"
 			type="image/svg+xml"
-			href="/static/brand-logo.svg"
+			href="/static/favicon.svg"
 			crossorigin="use-credentials"
 		/>
 		<link rel="shortcut icon" href="/static/favicon.ico" crossorigin="use-credentials" />
@@ -90,7 +90,7 @@
 				logo.id = 'logo';
 				logo.style =
 					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
-				logo.src = isDarkMode ? '/static/brand-splash.svg' : '/static/brand-splash.svg';
+				logo.src = isDarkMode ? '/static/splash-dark.png' : '/static/splash.png';
 
 				document.addEventListener('DOMContentLoaded', function () {
 					const splash = document.getElementById('splash-screen');
@@ -103,7 +103,7 @@
 			})();
 		</script>
 
-		<title>Local AI Hub</title>
+		<title>Open WebUI</title>
 
 		%sveltekit.head%
 	</head>
@@ -138,7 +138,7 @@
 				<img
 					id="logo-her"
 					style="width: auto; height: 13rem"
-					src="/static/brand-splash.svg"
+					src="/static/splash.png"
 					class="animate-pulse-fast"
 				/>
 

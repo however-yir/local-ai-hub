@@ -1,7 +1,7 @@
 {
-	"name": "local-ai-hub",
+	"name": "open-webui",
 	"version": "0.8.12",
-	"description": "Local AI Hub - a personalized self-hosted AI workspace fork",
+	"description": "Open WebUI",
 	"private": true,
 	"scripts": {
 		"dev": "npm run pyodide:fetch && vite dev --host",

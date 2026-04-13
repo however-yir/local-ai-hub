@@ -1,4 +1,4 @@
-# Local AI Hub - 本地私有 AI 工作台 | Self-hosted Local AI Workspace
+# Open WebUI (Community Derivative) - 本地私有 AI 工作台 | Self-hosted AI Workspace
 
 [![Build](https://github.com/however-yir/local-ai-hub/actions/workflows/build-release.yml/badge.svg)](https://github.com/however-yir/local-ai-hub/actions/workflows/build-release.yml)
 [![Docs](https://img.shields.io/badge/docs-README-0A7EFA)](https://github.com/however-yir/local-ai-hub#readme)
@@ -13,57 +13,60 @@
 >
 > Series: [LZKB](https://github.com/however-yir/LZKB) · [yourrag](https://github.com/however-yir/yourrag)
 
-> A personalized, self-hosted AI workspace forked from Open WebUI.
+> A community-maintained derivative distribution based on Open WebUI.
 
-`Local AI Hub` 的角色不是知识库平台，也不是企业 RAG 平台，而是“本地 AI 工作台”。  
+> Compliance Notice:
+> This repository preserves **Open WebUI** branding in default distribution.
+> It is **not affiliated with, endorsed by, or sponsored by Open WebUI Inc.**
+> "Open WebUI" and related marks are trademarks of their respective owners.
+
+`Open WebUI` 的角色不是知识库平台，也不是企业 RAG 平台，而是“本地 AI 工作台”。  
 它更强调模型接入、私有部署、工作台体验、团队内日常使用与后续能力扩展。
 
-![Local AI Hub Splash](./static/static/brand-splash.svg)
+![Open WebUI Splash](./static/static/splash.png)
 
 ## Demo 媒体
 
 > 当前仓库已补入一张现有运行界面图；后续会继续替换为完全品牌化后的最新实拍截图。
 
-![Local AI Hub workspace capture](./demo.png)
+![Open WebUI workspace capture](./demo.png)
 
 ## 项目快照
 
 - 定位：本地优先、自托管的 AI 工作台。
-- 亮点：Open WebUI 深度定制、Docker 部署、模型网关、品牌脱钩与私有化配置。
+- 亮点：Open WebUI 深度定制、Docker 部署、模型网关、品牌合规与私有化配置。
 - 最短运行路径：`cp .env.example .env && docker compose up -d --build`
-- 系列分工：`Local AI Hub` 负责工作台入口，`LZKB` 负责知识平台，`YourRAG` 负责企业 RAG/Agent 交付。
+- 系列分工：`Open WebUI` 负责工作台入口，`LZKB` 负责知识平台，`YourRAG` 负责企业 RAG/Agent 交付。
 
 ## AI 平台分工矩阵
 
 | Repo | 主要角色 | 部署形态 | 最适合的场景 |
 | --- | --- | --- | --- |
-| `Local AI Hub` | 本地 AI 工作台 | 自托管工作台 | 模型接入、团队日用、统一入口 |
+| `Open WebUI` | 本地 AI 工作台 | 自托管工作台 | 模型接入、团队日用、统一入口 |
 | `LZKB` | 知识库平台 | 本地优先平台 | 文档入库、知识运营、检索问答 |
 | `YourRAG` | 企业 RAG/Agent 平台 | 企业交付导向 | 私有化部署、RAG + Agent 交付 |
 
 ## 项目定位
-`Local AI Hub` 是基于 `open-webui` 深度定制的私有化 AI 工作台，面向本地部署、团队协作、模型编排与知识工作流。
+`Open WebUI` 是基于 `open-webui` 深度定制的私有化 AI 工作台，面向本地部署、团队协作、模型编排与知识工作流。
 
 本仓库当前目标：
 - 强化本地/私有部署能力（数据库、Redis、模型网关）。
-- 完成品牌与工程层脱钩（名称、Logo、仓库元数据、协议）。
+- 恢复并保持 Open WebUI 品牌标识合规（名称、Logo、默认分发元信息）。
 - 保留上游兼容性（核心运行方式不变，新增项目级入口）。
 
 ## 本次已完成改造
 
-### 1) 品牌与命名
-- 项目名改为 `Local AI Hub`。
-- 前端默认应用名改为 `Local AI Hub`（`src/lib/constants.ts`）。
-- 页面默认标题改为 `Local AI Hub`（`src/app.html`）。
-- 通知标题从硬编码 `Open WebUI` 改为动态 `$WEBUI_NAME`。
-- 新增品牌资源：`brand-logo.svg`、`brand-splash.svg`。
-- PWA manifest 名称改为 `Local AI Hub`。
+### 1) 品牌与命名（合规修正）
+- 默认项目名恢复为 `Open WebUI`。
+- 前端默认应用名恢复为 `Open WebUI`（`src/lib/constants.ts`）。
+- 页面默认标题恢复为 `Open WebUI`（`src/app.html`）。
+- 保留动态 `WEBUI_NAME`，但默认分发品牌保持 Open WebUI。
+- PWA / OpenSearch 元信息恢复为 Open WebUI。
 
 ### 2) 包名与入口
-- `package.json` 包名改为 `local-ai-hub`。
-- `pyproject.toml` 包名改为 `local-ai-hub`。
-- 保留 `open-webui` 命令兼容。
-- 新增 CLI 入口：`local-ai-hub`。
+- `package.json` 包名恢复为 `open-webui`。
+- `pyproject.toml` 包名恢复为 `open-webui`。
+- CLI 入口统一为 `open-webui`。
 
 ### 3) 配置模板（DB / Redis / 模型地址）
 - 完整重写 `.env.example`。
@@ -81,15 +84,15 @@
 
 ### 5) 数据与部署默认值优化
 - `env.py` 新增 `PROJECT_NAME / PROJECT_SLUG` 机制。
-- `WEBUI_NAME` 不再强制追加 `(Open WebUI)`。
+- 当 `WEBUI_NAME` 自定义时，自动追加 `(Open WebUI)` 标识。
 - `DATABASE_URL` 支持 `APP_DATABASE_URL` 别名与本地回退策略。
 - `REDIS_URL` 支持 `APP_REDIS_URL` 别名。
-- `REDIS_KEY_PREFIX` 默认改为项目 slug。
+- `REDIS_KEY_PREFIX` 默认使用 `open-webui`。
 
 ### 6) Docker 与仓库元信息
-- Docker 镜像/容器名改为 `local-ai-hub` 语义。
+- Docker 镜像/容器名恢复为 `open-webui` 语义。
 - `docker-compose.yaml` 新增 Redis 服务并默认接入。
-- OTel compose 的服务名和卷名同步品牌化。
+- OTel compose 的服务名和卷名恢复为 Open WebUI 命名。
 - 新增 `.github/settings.yml`（仓库描述、首页、Topics 模板）。
 
 ### 7) 协议与治理
@@ -147,14 +150,14 @@ cd backend
 ### 数据库
 生产推荐 PostgreSQL：
 ```env
-DATABASE_URL=postgresql://user:password@postgres:5432/local_ai_hub
+DATABASE_URL=postgresql://user:password@postgres:5432/open_webui
 ```
 
 ### Redis
 生产建议启用（WebSocket / 会话 / 任务协同）：
 ```env
 REDIS_URL=redis://redis:6379/0
-REDIS_KEY_PREFIX=local-ai-hub
+REDIS_KEY_PREFIX=open-webui
 ```
 
 ### 模型网关
@@ -191,11 +194,11 @@ OPENAI_API_KEY=replace_with_secure_key
 | 项目文档首页 | `docs/README.md` | 总览与导航 |
 | 安全说明 | `docs/SECURITY.md` | 私有部署与安全建议 |
 | 协作协议 | `PROJECT_PROTOCOL.md` | fork 后的治理边界 |
-| 品牌资源 | `static/static/brand-splash.svg` | README 与首屏品牌资产 |
+| 品牌资源 | `static/static/splash.png` | README 与首屏品牌资产 |
 
 ## 与上游 Open WebUI 的区别
-- 目标定位：从通用开源界面，转向“个人/团队可运营”的私有 AI 工作台。
-- 品牌体系：完整替换项目名称、Logo、PWA 元信息、仓库元数据模板。
+- 目标定位：在 Open WebUI 基础上，增强“个人/团队可运营”的私有 AI 工作台能力。
+- 品牌体系：默认分发保持 Open WebUI 品牌，并补充派生仓库声明与商标归属说明。
 - 部署策略：新增 Redis 默认接入与生产配置模板。
 - 配置治理：增加别名环境变量，方便历史环境平滑迁移。
 - 工程治理：新增项目协议文件，定义持续维护约束。
@@ -210,7 +213,7 @@ OPENAI_API_KEY=replace_with_secure_key
 
 ## 兼容性说明
 - 内部 Python 包命名空间仍为 `open_webui`，用于最大限度保持上游兼容。
-- 已新增项目入口 `local-ai-hub`，同时保留 `open-webui` 兼容命令。
+- 项目命令入口保持 `open-webui`，以维持与上游生态一致。
 
 ## 协议与许可证
 - 项目协议：[`PROJECT_PROTOCOL.md`](./PROJECT_PROTOCOL.md)

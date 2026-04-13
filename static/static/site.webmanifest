@@ -1,14 +1,7 @@
 {
-  "name": "Local AI Hub",
-  "short_name": "ZAIHub",
-  "description": "A personalized self-hosted AI workspace.",
+  "name": "Open WebUI",
+  "short_name": "WebUI",
   "icons": [
-    {
-      "src": "/static/brand-logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
     {
       "src": "/static/web-app-manifest-192x192.png",
       "sizes": "192x192",

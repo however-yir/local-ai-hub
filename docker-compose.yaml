@@ -10,17 +10,17 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: local-ai-hub-redis
+    container_name: open-webui-redis
     restart: unless-stopped
 
   open-webui:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/your-org/local-ai-hub:${WEBUI_DOCKER_TAG-main}
-    container_name: local-ai-hub
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: open-webui
     volumes:
-      - local-ai-hub-data:/app/backend/data
+      - open-webui-data:/app/backend/data
     depends_on:
       - ollama
       - redis
@@ -29,9 +29,9 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}'
       - 'REDIS_URL=${REDIS_URL:-redis://redis:6379/0}'
-      - 'REDIS_KEY_PREFIX=local-ai-hub'
-      - 'PROJECT_NAME=Local AI Hub'
-      - 'WEBUI_NAME=Local AI Hub'
+      - 'REDIS_KEY_PREFIX=open-webui'
+      - 'PROJECT_NAME=Open WebUI'
+      - 'WEBUI_NAME=Open WebUI'
       - 'WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY-}'
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -39,4 +39,4 @@ services:
 
 volumes:
   ollama: {}
-  local-ai-hub-data: {}
+  open-webui-data: {}

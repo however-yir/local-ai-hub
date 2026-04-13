@@ -13,10 +13,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/your-org/local-ai-hub:${WEBUI_DOCKER_TAG-main}
-    container_name: local-ai-hub
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: open-webui
     volumes:
-      - local-ai-hub-data:/app/backend/data
+      - open-webui-data:/app/backend/data
     depends_on:
       - grafana
     ports:
@@ -26,12 +26,12 @@ services:
       - ENABLE_OTEL_METRICS=true
       - OTEL_EXPORTER_OTLP_INSECURE=true # Use insecure connection for OTLP, remove in production
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://grafana:4317
-      - OTEL_SERVICE_NAME=local-ai-hub
-      - PROJECT_NAME=Local AI Hub
-      - WEBUI_NAME=Local AI Hub
+      - OTEL_SERVICE_NAME=open-webui
+      - PROJECT_NAME=Open WebUI
+      - WEBUI_NAME=Open WebUI
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
 
 volumes:
-  local-ai-hub-data: {}
+  open-webui-data: {}

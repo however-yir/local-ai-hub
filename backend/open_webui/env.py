@@ -125,11 +125,13 @@ if 'cuda_error' in locals():
 
 SRC_LOG_LEVELS = {}  # Legacy variable, do not remove
 
-PROJECT_NAME = os.environ.get('PROJECT_NAME', 'Local AI Hub').strip() or 'Local AI Hub'
+PROJECT_NAME = os.environ.get('PROJECT_NAME', 'Open WebUI').strip() or 'Open WebUI'
 WEBUI_NAME = os.environ.get('WEBUI_NAME', PROJECT_NAME).strip() or PROJECT_NAME
+if WEBUI_NAME != 'Open WebUI':
+    WEBUI_NAME += ' (Open WebUI)'
 PROJECT_SLUG = os.environ.get(
     'PROJECT_SLUG',
-    re.sub(r'[^a-z0-9]+', '-', WEBUI_NAME.lower()).strip('-') or 'local-ai-hub',
+    re.sub(r'[^a-z0-9]+', '-', WEBUI_NAME.lower()).strip('-') or 'open-webui',
 )
 WEBUI_FAVICON_URL = os.environ.get('WEBUI_FAVICON_URL', '/static/favicon.png')
 
@@ -145,7 +147,7 @@ FROM_INIT_PY = os.environ.get('FROM_INIT_PY', 'False').lower() == 'true'
 
 if FROM_INIT_PY:
     try:
-        PACKAGE_DATA = {'version': importlib.metadata.version('local-ai-hub')}
+        PACKAGE_DATA = {'version': importlib.metadata.version('open-webui')}
     except importlib.metadata.PackageNotFoundError:
         PACKAGE_DATA = {'version': importlib.metadata.version('open-webui')}
 else:
@@ -307,7 +309,7 @@ if os.path.exists(f'{DATA_DIR}/ollama.db'):
 else:
     pass
 
-default_sqlite_filename = os.environ.get('DATABASE_FILENAME', 'local_ai_hub.db')
+default_sqlite_filename = os.environ.get('DATABASE_FILENAME', 'webui.db')
 default_sqlite_path = DATA_DIR / default_sqlite_filename
 legacy_sqlite_path = DATA_DIR / 'webui.db'
 if legacy_sqlite_path.exists() and not default_sqlite_path.exists():

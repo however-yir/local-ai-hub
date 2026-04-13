@@ -1,14 +1,14 @@
 import os
 
 
-DEFAULT_PROJECT_NAME = 'Local AI Hub'
+DEFAULT_PROJECT_NAME = 'Open WebUI'
 DEFAULT_PROJECT_DESCRIPTION = (
     'A self-hosted AI workspace for private assistants, local model orchestration, and team productivity.'
 )
-DEFAULT_PROJECT_REPOSITORY_URL = 'https://github.com/your-org/local-ai-hub'
-DEFAULT_PROJECT_RELEASES_API_URL = 'https://api.github.com/repos/your-org/local-ai-hub/releases/latest'
-DEFAULT_PROJECT_LOGO_URL = '/static/brand-logo.svg'
-DEFAULT_PROJECT_LOGO_FALLBACK_URL = '/static/logo.png'
+DEFAULT_PROJECT_REPOSITORY_URL = 'https://github.com/open-webui/open-webui'
+DEFAULT_PROJECT_RELEASES_API_URL = 'https://api.github.com/repos/open-webui/open-webui/releases/latest'
+DEFAULT_PROJECT_LOGO_URL = '/static/favicon.svg'
+DEFAULT_PROJECT_LOGO_FALLBACK_URL = '/static/web-app-manifest-512x512.png'
 
 PROJECT_NAME = os.environ.get('PROJECT_NAME', DEFAULT_PROJECT_NAME)
 PROJECT_DESCRIPTION = os.environ.get('PROJECT_DESCRIPTION', DEFAULT_PROJECT_DESCRIPTION)

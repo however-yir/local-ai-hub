@@ -1,6 +1,6 @@
 [project]
-name = "local-ai-hub"
-description = "Local AI Hub"
+name = "open-webui"
+description = "Open WebUI"
 authors = [
     { name = "Project Maintainer", email = "your-org@local.dev" }
 ]
@@ -172,7 +172,6 @@ all = [
 
 [project.scripts]
 open-webui = "open_webui:app"
-local-ai-hub = "open_webui:app"
 
 [build-system]
 requires = ["hatchling"]
