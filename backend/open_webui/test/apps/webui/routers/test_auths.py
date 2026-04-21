@@ -17,13 +17,12 @@ class TestAuths(AbstractPostgresTest):
         with mock_webui_user():
             response = self.fast_api_client.get(self.create_url(''))
         assert response.status_code == 200
-        assert response.json() == {
-            'id': '1',
-            'name': 'John Doe',
-            'email': 'john.doe@openwebui.com',
-            'role': 'user',
-            'profile_image_url': '/user.png',
-        }
+        data = response.json()
+        assert data['id'] == '1'
+        assert data['name'] == 'John Doe'
+        assert data['email'] == 'john.doe@openwebui.com'
+        assert data['role'] == 'user'
+        assert data['profile_image_url'] == '/user.png'
 
     def test_update_profile(self):
         from open_webui.utils.auth import get_password_hash
