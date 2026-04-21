@@ -30,6 +30,9 @@ def mock_gcs_client(monkeypatch):
 
     monkeypatch.setattr(provider.storage, 'Client', client_cls)
     monkeypatch.setattr(provider, 'GCS_BUCKET_NAME', 'test-bucket')
+    monkeypatch.setattr(provider, 'AZURE_STORAGE_ENDPOINT', 'https://example.blob.core.windows.net')
+    monkeypatch.setattr(provider, 'AZURE_STORAGE_CONTAINER_NAME', 'test-container')
+    monkeypatch.setattr(provider, 'AZURE_STORAGE_KEY', 'test-key')
     return client_instance
 
 
