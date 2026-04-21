@@ -225,12 +225,14 @@ class TestGCSStorageProvider:
         server.start()
         os.environ['STORAGE_EMULATOR_HOST'] = f'http://{host}:{port}'
 
-        self.Storage = provider.GCSStorageProvider()
-        self.Storage.bucket_name = self.bucket_name
+        storage_provider = provider.GCSStorageProvider()
+        storage_provider.bucket_name = self.bucket_name
         gcs_client = storage.Client()
-        bucket = gcs_client.bucket(self.Storage.bucket_name)
+        bucket = gcs_client.bucket(storage_provider.bucket_name)
         bucket.create()
-        self.Storage.gcs_client, self.Storage.bucket = gcs_client, bucket
+        storage_provider.gcs_client = gcs_client
+        storage_provider.bucket = bucket
+        type(self).Storage = storage_provider
         yield
         bucket.delete(force=True)
         server.stop()
