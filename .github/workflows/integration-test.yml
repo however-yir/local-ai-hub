@@ -440,7 +440,26 @@ jobs:
           echo "Service is up!"
 
       - name: Preload Ollama model
-        run: docker exec ollama ollama pull qwen:0.5b-chat-v1.5-q2_K
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          model="qwen:0.5b-chat-v1.5-q2_K"
+          for attempt in 1 2 3 4 5; do
+            echo "Pulling $model (attempt $attempt/5)..."
+            if docker exec ollama ollama pull "$model"; then
+              echo "Model pull succeeded."
+              exit 0
+            fi
+
+            if [ "$attempt" -lt 5 ]; then
+              sleep_seconds=$((attempt * 5))
+              echo "Retrying in ${sleep_seconds}s..."
+              sleep "$sleep_seconds"
+            fi
+          done
+
+          echo "::error::Failed to pull $model after 5 attempts."
+          exit 1
 
       - name: Cypress run (${{ matrix.shard }})
         uses: cypress-io/github-action@v6
