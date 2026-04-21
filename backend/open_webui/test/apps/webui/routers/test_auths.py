@@ -46,7 +46,7 @@ class TestAuths(AbstractPostgresTest):
         assert db_user.profile_image_url == '/static/favicon.png'
 
     def test_update_password(self):
-        from open_webui.utils.auth import get_password_hash
+        from open_webui.utils.auth import get_password_hash, verify_password
 
         user = self.auths.insert_new_auth(
             email='john.doe@openwebui.com',
@@ -63,9 +63,13 @@ class TestAuths(AbstractPostgresTest):
             )
         assert response.status_code == 200
 
-        old_auth = self.auths.authenticate_user('john.doe@openwebui.com', 'old_password')
+        old_auth = self.auths.authenticate_user(
+            'john.doe@openwebui.com', lambda stored_hash: verify_password('old_password', stored_hash)
+        )
         assert old_auth is None
-        new_auth = self.auths.authenticate_user('john.doe@openwebui.com', 'new_password')
+        new_auth = self.auths.authenticate_user(
+            'john.doe@openwebui.com', lambda stored_hash: verify_password('new_password', stored_hash)
+        )
         assert new_auth is not None
 
     def test_signin(self):
