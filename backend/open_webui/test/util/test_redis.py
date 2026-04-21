@@ -612,30 +612,20 @@ class TestSentinelRedisProxyFactoryMethods:
     @patch('redis.sentinel.Sentinel')
     @pytest.mark.asyncio
     async def test_factory_methods_with_failover_async(self, mock_sentinel_class):
-        """Test factory methods with failover in async mode"""
+        """Factory methods are pass-through and do not apply retry wrappers."""
         mock_sentinel = Mock()
         mock_master = Mock()
 
-        # First call fails, second succeeds
-        mock_pubsub = Mock()
-        mock_master.pubsub.side_effect = [
-            redis.exceptions.ConnectionError('Connection failed'),
-            mock_pubsub,
-        ]
+        mock_master.pubsub.side_effect = redis.exceptions.ConnectionError('Connection failed')
 
         mock_sentinel.master_for.return_value = mock_master
 
         proxy = SentinelRedisProxy(mock_sentinel, 'mymaster', async_mode=True)
 
-        # Test pubsub factory method with failover
         pubsub_method = proxy.__getattr__('pubsub')
-        result = pubsub_method()
-
-        assert result == mock_pubsub
-        assert mock_master.pubsub.call_count == 2  # Retry happened
-
-        # Verify it's still not wrapped as async after retry
-        assert not inspect.iscoroutine(result)
+        with pytest.raises(redis.exceptions.ConnectionError):
+            pubsub_method()
+        assert mock_master.pubsub.call_count == 1
 
     @patch('redis.sentinel.Sentinel')
     @pytest.mark.asyncio
