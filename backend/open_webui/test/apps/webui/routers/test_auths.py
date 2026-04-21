@@ -188,8 +188,7 @@ class TestAuths(AbstractPostgresTest):
             response = self.fast_api_client.delete(self.create_url('/api_key'))
         assert response.status_code == 200
         assert response.json() == True
-        db_user = self.users.get_user_by_id(user.id)
-        assert db_user.api_key is None
+        assert self.users.get_user_api_key_by_id(user.id) is None
 
     def test_get_api_key(self):
         user = self.auths.insert_new_auth(
