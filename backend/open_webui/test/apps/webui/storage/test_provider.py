@@ -19,6 +19,20 @@ def mock_upload_dir(monkeypatch, tmp_path):
     return directory
 
 
+@pytest.fixture
+def mock_gcs_client(monkeypatch):
+    client_instance = MagicMock()
+    client_instance.bucket.return_value = MagicMock()
+
+    client_cls = MagicMock()
+    client_cls.return_value = client_instance
+    client_cls.from_service_account_info.return_value = client_instance
+
+    monkeypatch.setattr(provider.storage, 'Client', client_cls)
+    monkeypatch.setattr(provider, 'GCS_BUCKET_NAME', 'test-bucket')
+    return client_instance
+
+
 def test_imports():
     provider.StorageProvider
     provider.LocalStorageProvider
@@ -28,7 +42,7 @@ def test_imports():
     provider.Storage
 
 
-def test_get_storage_provider():
+def test_get_storage_provider(mock_gcs_client):
     Storage = provider.get_storage_provider('local')
     assert isinstance(Storage, provider.LocalStorageProvider)
     Storage = provider.get_storage_provider('s3')
@@ -41,7 +55,7 @@ def test_get_storage_provider():
         provider.get_storage_provider('invalid')
 
 
-def test_class_instantiation():
+def test_class_instantiation(mock_gcs_client):
     with pytest.raises(TypeError):
         provider.StorageProvider()
     with pytest.raises(TypeError):
