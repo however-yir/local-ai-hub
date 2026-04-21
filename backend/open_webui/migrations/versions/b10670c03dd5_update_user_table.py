@@ -32,12 +32,20 @@ def _drop_sqlite_indexes_for_column(table_name, column_name, conn):
 
     for idx in indexes:
         index_name = idx[1]  # index name
+        # SQLite autoindexes back UNIQUE/PRIMARY KEY constraints and cannot be dropped directly.
+        if index_name.startswith('sqlite_autoindex_'):
+            continue
+
         # Get indexed columns
         idx_info = conn.execute(sa.text(f"PRAGMA index_info('{index_name}')")).fetchall()
 
         indexed_cols = [row[2] for row in idx_info]  # col names
         if column_name in indexed_cols:
-            conn.execute(sa.text(f'DROP INDEX IF EXISTS {index_name}'))
+            try:
+                conn.execute(sa.text(f'DROP INDEX IF EXISTS {index_name}'))
+            except Exception as exc:
+                if 'index associated with UNIQUE or PRIMARY KEY constraint cannot be dropped' not in str(exc):
+                    raise
 
 
 def _convert_column_to_json(table: str, column: str):
