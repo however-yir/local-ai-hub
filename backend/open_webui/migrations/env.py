@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from open_webui.models.auths import Auth
+import open_webui.models.messages  # noqa: F401 - ensure message table is registered in metadata
 from open_webui.env import DATABASE_URL, DATABASE_PASSWORD, LOG_FORMAT
 from sqlalchemy import engine_from_config, pool, create_engine
 
