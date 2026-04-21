@@ -239,9 +239,10 @@ class TestGCSStorageProvider:
     def test_upload_file(self, monkeypatch, tmp_path, setup):
         upload_dir = mock_upload_dir(monkeypatch, tmp_path)
         # catch error if bucket does not exist
-        with pytest.raises(Exception):
-            self.Storage.bucket = monkeypatch(self.Storage, 'bucket', None)
-            self.Storage.upload_file(io.BytesIO(self.file_content), self.filename, {})
+        with monkeypatch.context() as m:
+            m.setattr(self.Storage, 'bucket', None)
+            with pytest.raises(Exception):
+                self.Storage.upload_file(io.BytesIO(self.file_content), self.filename, {})
         contents, gcs_file_path = self.Storage.upload_file(io.BytesIO(self.file_content), self.filename, {})
         object = self.Storage.bucket.get_blob(self.filename)
         assert self.file_content == object.download_as_bytes()
