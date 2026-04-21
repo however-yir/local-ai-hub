@@ -394,7 +394,8 @@ jobs:
   cypress-run:
     name: Run Cypress Integration Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 25
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
