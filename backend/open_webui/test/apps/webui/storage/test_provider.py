@@ -193,8 +193,8 @@ class TestS3StorageProvider:
 
 
 class TestGCSStorageProvider:
-    Storage = provider.GCSStorageProvider()
-    Storage.bucket_name = 'my-bucket'
+    Storage = None
+    bucket_name = 'my-bucket'
     file_content = b'test content'
     filename = 'test.txt'
     filename_extra = 'test_exyta.txt'
@@ -208,6 +208,8 @@ class TestGCSStorageProvider:
         server.start()
         os.environ['STORAGE_EMULATOR_HOST'] = f'http://{host}:{port}'
 
+        self.Storage = provider.GCSStorageProvider()
+        self.Storage.bucket_name = self.bucket_name
         gcs_client = storage.Client()
         bucket = gcs_client.bucket(self.Storage.bucket_name)
         bucket.create()
@@ -215,6 +217,7 @@ class TestGCSStorageProvider:
         yield
         bucket.delete(force=True)
         server.stop()
+        os.environ.pop('STORAGE_EMULATOR_HOST', None)
 
     def test_upload_file(self, monkeypatch, tmp_path, setup):
         upload_dir = mock_upload_dir(monkeypatch, tmp_path)
