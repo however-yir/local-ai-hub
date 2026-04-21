@@ -41,8 +41,7 @@
 						<a
 							class=" font-medium underline"
 							href="https://github.com/your-org/local-ai-hub/discussions"
-							target="_blank"
-							>{$i18n.t('join our Discord for help.')}</a
+							target="_blank">{$i18n.t('join our Discord for help.')}</a
 						>
 					</div>
 
