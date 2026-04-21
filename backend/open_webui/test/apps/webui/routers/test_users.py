@@ -48,7 +48,7 @@ class TestUsers(AbstractPostgresTest):
                     'role': 'admin',
                     'name': 'user 2 updated',
                     'email': 'user2-updated@openwebui.com',
-                    'profile_image_url': '/user2-updated.png',
+                    'profile_image_url': '/static/favicon.png',
                 },
             )
         assert response.status_code == 200
