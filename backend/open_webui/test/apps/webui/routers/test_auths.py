@@ -111,7 +111,7 @@ class TestAuths(AbstractPostgresTest):
         assert data['name'] == 'John Doe'
         assert data['email'] == 'john.doe@openwebui.com'
         assert data['role'] in ['admin', 'user', 'pending']
-        assert data['profile_image_url'] == f"/api/v1/users/{data['id']}/profile/image"
+        assert data['profile_image_url'] == f'/api/v1/users/{data["id"]}/profile/image'
         assert data['token'] is not None and len(data['token']) > 0
         assert data['token_type'] == 'Bearer'
 
@@ -132,7 +132,7 @@ class TestAuths(AbstractPostgresTest):
         assert data['name'] == 'John Doe 2'
         assert data['email'] == 'john.doe2@openwebui.com'
         assert data['role'] == 'admin'
-        assert data['profile_image_url'] == f"/api/v1/users/{data['id']}/profile/image"
+        assert data['profile_image_url'] == f'/api/v1/users/{data["id"]}/profile/image'
         assert data['token'] is not None and len(data['token']) > 0
         assert data['token_type'] == 'Bearer'
 
