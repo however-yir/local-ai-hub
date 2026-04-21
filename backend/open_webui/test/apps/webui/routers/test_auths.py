@@ -161,8 +161,15 @@ class TestAuths(AbstractPostgresTest):
             profile_image_url='/user.png',
             role='admin',
         )
-        with mock_webui_user(id=user.id, role='admin'):
-            response = self.fast_api_client.post(self.create_url('/api_key'))
+        previous_enable_api_keys = self.fast_api_client.app.state.config.ENABLE_API_KEYS
+        self.fast_api_client.app.state.config.ENABLE_API_KEYS = True
+
+        try:
+            with mock_webui_user(id=user.id, role='admin'):
+                response = self.fast_api_client.post(self.create_url('/api_key'))
+        finally:
+            self.fast_api_client.app.state.config.ENABLE_API_KEYS = previous_enable_api_keys
+
         assert response.status_code == 200
         data = response.json()
         assert data['api_key'] is not None
