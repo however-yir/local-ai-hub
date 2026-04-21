@@ -33,6 +33,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   NODE_VERSION: "22"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   migration_test:
