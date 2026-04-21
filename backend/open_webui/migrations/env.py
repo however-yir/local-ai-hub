@@ -1,9 +1,10 @@
+import importlib
 import logging
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from open_webui.models.auths import Auth
-import open_webui.models.messages  # noqa: F401 - ensure message table is registered in metadata
 from open_webui.env import DATABASE_URL, DATABASE_PASSWORD, LOG_FORMAT
 from sqlalchemy import engine_from_config, pool, create_engine
 
@@ -23,10 +24,17 @@ if LOG_FORMAT == 'json':
     for handler in logging.root.handlers:
         handler.setFormatter(JSONFormatter())
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
+def _load_all_models_for_metadata() -> None:
+    """Import every model module so Alembic autogenerate sees the full metadata graph."""
+    models_dir = Path(__file__).resolve().parents[1] / 'models'
+    for model_file in models_dir.glob('*.py'):
+        module_name = model_file.stem
+        if module_name.startswith('_'):
+            continue
+        importlib.import_module(f'open_webui.models.{module_name}')
+
+
+_load_all_models_for_metadata()
 target_metadata = Auth.metadata
 
 # other values from the config, defined by the needs of env.py,
