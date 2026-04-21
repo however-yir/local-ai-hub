@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 
 import requests
 from pydantic import BaseModel
-from sqlalchemy import JSON, Column, DateTime, Integer, func
+from sqlalchemy import JSON, Column, DateTime, Integer, func, inspect
 from authlib.integrations.starlette_client import OAuth
 
 
@@ -122,6 +122,8 @@ DEFAULT_CONFIG = {
 
 def get_config():
     with get_db() as db:
+        if not inspect(db.get_bind()).has_table(Config.__tablename__):
+            return DEFAULT_CONFIG
         config_entry = db.query(Config).order_by(Config.id.desc()).first()
         return config_entry.data if config_entry else DEFAULT_CONFIG
 

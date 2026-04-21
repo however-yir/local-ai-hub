@@ -24,6 +24,7 @@ if LOG_FORMAT == 'json':
     for handler in logging.root.handlers:
         handler.setFormatter(JSONFormatter())
 
+
 def _load_all_models_for_metadata() -> None:
     """Import every model module so Alembic autogenerate sees the full metadata graph."""
     models_dir = Path(__file__).resolve().parents[1] / 'models'
