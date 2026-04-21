@@ -42,7 +42,17 @@ jobs:
           node-version: '22'
 
       - name: Install Dependencies
-        run: npm install --force
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if npm install --force; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 10))
+            fi
+          done
+          exit 1
 
       - name: Format Frontend
         run: npm run format
@@ -69,7 +79,17 @@ jobs:
           node-version: '22'
 
       - name: Install Dependencies
-        run: npm ci --force
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if npm ci --force; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              sleep $((attempt * 10))
+            fi
+          done
+          exit 1
 
       - name: Run vitest
         run: npm run test:frontend
