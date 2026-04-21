@@ -161,7 +161,7 @@ class TestAuths(AbstractPostgresTest):
             profile_image_url='/user.png',
             role='admin',
         )
-        with mock_webui_user(id=user.id):
+        with mock_webui_user(id=user.id, role='admin'):
             response = self.fast_api_client.post(self.create_url('/api_key'))
         assert response.status_code == 200
         data = response.json()
