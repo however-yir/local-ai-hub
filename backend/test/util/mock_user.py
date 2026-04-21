@@ -12,11 +12,11 @@ from open_webui.utils.auth import get_admin_user, get_current_user, get_verified
 
 @contextmanager
 def mock_webui_user(
-    id: str = "1",
-    name: str = "John Doe",
-    email: str = "john.doe@openwebui.com",
-    role: str = "user",
-    profile_image_url: str = "/user.png",
+    id: str = '1',
+    name: str = 'John Doe',
+    email: str = 'john.doe@openwebui.com',
+    role: str = 'user',
+    profile_image_url: str = '/user.png',
 ) -> Iterator[SimpleNamespace]:
     user = SimpleNamespace(
         id=id,

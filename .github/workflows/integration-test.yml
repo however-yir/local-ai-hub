@@ -77,8 +77,10 @@ jobs:
         env:
           WEBUI_SECRET_KEY: secret-key
           GLOBAL_LOG_LEVEL: debug
+          ENABLE_DB_MIGRATIONS: "False"
         run: |
           cd backend/open_webui
+          alembic -c alembic.ini upgrade head
           alembic -c alembic.ini check
 
       - name: Test backend with SQLite

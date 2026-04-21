@@ -317,9 +317,7 @@ if legacy_sqlite_path.exists() and not default_sqlite_path.exists():
     default_sqlite_path = legacy_sqlite_path
 
 DATABASE_URL = (
-    os.environ.get('DATABASE_URL')
-    or os.environ.get('APP_DATABASE_URL')
-    or f'sqlite:///{default_sqlite_path}'
+    os.environ.get('DATABASE_URL') or os.environ.get('APP_DATABASE_URL') or f'sqlite:///{default_sqlite_path}'
 )
 
 DATABASE_TYPE = os.environ.get('DATABASE_TYPE', os.environ.get('APP_DATABASE_TYPE'))
