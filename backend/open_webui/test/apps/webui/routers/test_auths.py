@@ -38,12 +38,12 @@ class TestAuths(AbstractPostgresTest):
         with mock_webui_user(id=user.id):
             response = self.fast_api_client.post(
                 self.create_url('/update/profile'),
-                json={'name': 'John Doe 2', 'profile_image_url': '/user2.png'},
+                json={'name': 'John Doe 2', 'profile_image_url': '/static/favicon.png'},
             )
         assert response.status_code == 200
         db_user = self.users.get_user_by_id(user.id)
         assert db_user.name == 'John Doe 2'
-        assert db_user.profile_image_url == '/user2.png'
+        assert db_user.profile_image_url == '/static/favicon.png'
 
     def test_update_password(self):
         from open_webui.utils.auth import get_password_hash
